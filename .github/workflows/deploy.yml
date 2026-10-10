@@ -51,6 +51,7 @@ jobs:
         "$RUNNER_TEMP/emsdk/emsdk" install 6.0.10
         "$RUNNER_TEMP/emsdk/emsdk" activate 6.0.10
 
+    # clang, as on macOS: GCC 13 rejects q3map2's vector initializers
     - name: Build
       run: |
         . "$RUNNER_TEMP/emsdk/emsdk_env.sh"
@@ -61,6 +62,8 @@ jobs:
       env:
         OPENDOJO_SERVER: ${{ vars.OPENDOJO_SERVER }}
         OPENDOJO_RELAY: ${{ vars.OPENDOJO_RELAY }}
+        CC: clang
+        CXX: clang++
 
     - uses: actions/upload-artifact@v4
       with:
@@ -70,6 +73,7 @@ jobs:
   deploy:
     name: Deploy to Vercel
     needs: build
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
