@@ -1,0 +1,6 @@
+[submodule "src/mvsdk"]
+	path = src/mvsdk
+	url = https://github.com/mvdevs/mvsdk.git
+[submodule "libs/gl4es"]
+	path = libs/gl4es
+	url = https://github.com/ptitSeb/gl4es.git

@@ -1,0 +1,5 @@
+# build output: engine builds, the asset pack, the site, tools
+/build/
+node_modules/
+__pycache__/
+.DS_Store
