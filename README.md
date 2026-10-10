@@ -123,29 +123,45 @@ browser (jk2mvmp.wasm) ──wss──▶ relay.mjs ──UDP 127.0.0.1──▶
 
 ## Deploying
 
-Not deployed yet. Two parts:
+`.github/workflows/deploy.yml` deploys on every push to main: it runs
+`./build.sh` on GitHub and builds `jk2mvded` for arm64, deploys the game
+server to its machine, then `build/site/` to Vercel, with the source link at
+the pushed commit. The server goes first because the page and the server
+must have the same `opendojo.pk3`, and every build makes a new one (q3map2
+lights the map on several threads). `vercel.json` turns off Vercel's own
+builds, which can't build this.
 
-1. **The game server**, on any small Linux machine:
-   - `build/native/out/Release/jk2mvded` with a base folder holding only
-     `opendojo.pk3` and `server/server.cfg`, as `test-server.sh` does, on
-     UDP 28170, `dedicated 1`, without cheats.
-   - `node server/relay.mjs --port <port> --game 127.0.0.1:28170` next to
-     it, behind https (Caddy, for example) at `/relay` (and `/status`).
-2. **The site**: publish this repository's source first, then
+1. **The game server** shares jk2web's machine (Oracle Cloud, arm64), apart
+   from it: `server/compose.yaml`, the compose project `opendojo` in
+   `/srv/opendojo`, runs `jk2mvded` on UDP 28170 (`dedicated 1`, no
+   cheats, not open in the firewall) and `server/relay.mjs` on
+   127.0.0.1:8081, with a low CPU share. The machine compiles nothing: the
+   workflow sends the built `jk2mvded`, the site's pack and the server's
+   files over SSH to the `deploy` user, whose key for this repository can
+   only run `/usr/local/bin/opendojo-deploy` (`server/deploy.sh`). To set
+   it up, on the machine:
+
+   ```sh
+   sudo install -d -o deploy -g deploy /srv/opendojo
+   sudo install -m 755 server/deploy.sh /usr/local/bin/opendojo-deploy
+   # in /home/deploy/.ssh/authorized_keys, the public half of a new key:
+   #   restrict,command="/usr/local/bin/opendojo-deploy" ssh-ed25519 AAAA...
+   ```
+
+   jk2web's Caddy gives the relay https, at `opendojo.<jk2web's domain>`
+   (a block in jk2web's `server/Caddyfile`). In this repository's settings:
+   the secrets `SERVER_SSH_KEY` (the key's private half) and
+   `SERVER_KNOWN_HOSTS` (`ssh-keyscan -t ed25519 <host>`), and the variable
+   `SERVER_HOST`; without them the server isn't deployed. Any other Linux
+   machine does the same with a Caddy of its own.
+2. **The site**, on Vercel. In the repository's settings: the secrets
+   `VERCEL_TOKEN` (a token for the Vercel team), `VERCEL_ORG_ID` (the team's
+   ID) and `VERCEL_PROJECT_ID`, without which the site isn't deployed; and
+   the variable `OPENDOJO_SERVER` (`<host>:28170`), with `OPENDOJO_RELAY` if
+   the relay isn't at `wss://<host>/relay`, without which the page says it
+   has no server. By hand, for any static host:
    `node site/build.mjs --server <host>:28170 --relay wss://<host>/relay --source <source url>`
-   and serve `build/site/` from any static host, at a domain's root or
-   under a path.
-
-   `.github/workflows/deploy.yml` does this on every push to main: it runs
-   `./build.sh` on GitHub and deploys `build/site/` to Vercel, with the
-   source link at the pushed commit (`vercel.json` turns off Vercel's own
-   builds, which can't build this). It needs, in the repository's settings:
-   - the secrets `VERCEL_TOKEN` (an account token), `VERCEL_ORG_ID` and
-     `VERCEL_PROJECT_ID` (from `.vercel/project.json` after `vercel link`);
-     without them it builds but doesn't deploy
-   - the variable `OPENDOJO_SERVER` (`<host>:28170`), and `OPENDOJO_RELAY`
-     if the relay isn't at `wss://<host>/relay`; without it the page says it
-     has no server
+   and serve `build/site/`, at a domain's root or under a path.
 
 Before publishing, read [LEGAL.md](LEGAL.md).
 

@@ -1,0 +1,32 @@
+# Open Dojo's game server and the relay browsers join it through, on a
+# machine that may run other things (jk2web's server, today): its own
+# compose project, its own ports (UDP 28170 for the game, 127.0.0.1:8081
+# for the relay) and a low CPU share. https in front of the relay comes from
+# the machine's Caddy (opendojo.<domain> to 127.0.0.1:8081). The Deploy
+# workflow sends this file with the rest of the server (deploy.sh).
+#
+# The project name keeps it apart from any other compose project on the
+# machine: without it, it's named after its folder, and --remove-orphans
+# removes another project's containers of the same name.
+name: opendojo
+
+services:
+  jk2mvded:
+    build: { context: ., target: jk2mvded }
+    network_mode: host
+    restart: unless-stopped
+    cpu_shares: 256
+    mem_limit: 512m
+    volumes:
+      - ./base:/od/base:ro  # opendojo.pk3 (the site's) and server.cfg
+      - home:/od/home
+
+  relay:
+    build: { context: ., target: relay }
+    network_mode: host
+    restart: unless-stopped
+    cpu_shares: 256
+    mem_limit: 256m
+
+volumes:
+  home:

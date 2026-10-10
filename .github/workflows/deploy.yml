@@ -1,9 +1,15 @@
-# Builds everything (build.sh) and deploys the static site, build/site/, to
-# Vercel on every push to main. Vercel can't build the repository itself (it
-# has no Emscripten, q3map2 or the pack generator), so vercel.json turns off
-# its own builds. In the repository's settings (see "Deploying" in README.md):
+# Builds everything (build.sh) on every push to main, deploys the game server
+# to its machine, then the static site, build/site/, to Vercel: the server
+# first, because the page and the server must have the same pack, and every
+# build makes a new one. Vercel can't build the repository itself (it has no
+# Emscripten, q3map2 or the pack generator), so vercel.json turns off its own
+# builds. In the repository's settings (see "Deploying" in README.md):
+#   - the secrets SERVER_SSH_KEY and SERVER_KNOWN_HOSTS and the variable
+#     SERVER_HOST: the game server's machine, where the key can only run
+#     opendojo-deploy (server/deploy.sh); until they're set, the server
+#     isn't deployed
 #   - the secrets VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID; until
-#     they're set, it builds but doesn't deploy
+#     they're set, the site isn't deployed
 #   - the variable OPENDOJO_SERVER, the game server (host:port), and
 #     optionally OPENDOJO_RELAY (wss://…/relay, by default
 #     wss://<host>/relay); until it's set, the page says it has no server
@@ -16,10 +22,11 @@ on:
   push:
     branches: main
 
-# the newest push wins
+# one at a time, in order: a deploy stopped halfway could leave the server
+# and the page with different packs
 concurrency:
   group: deploy
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -71,9 +78,60 @@ jobs:
         name: site
         path: build/site
 
+  # the dedicated server for the game server's machine, an arm64 one, built
+  # here so that the machine compiles nothing
+  server:
+    name: Build the game server (arm64)
+    runs-on: ubuntu-24.04-arm
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Build
+      run: ./build-engine.sh ded
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: jk2mvded
+        path: build/native/out/Release/jk2mvded
+
+  deploy-server:
+    name: Deploy the game server
+    needs: [build, server]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+      KNOWN_HOSTS: ${{ secrets.SERVER_KNOWN_HOSTS }}
+      HOST: ${{ vars.SERVER_HOST }}
+    steps:
+    - uses: actions/checkout@v4
+      if: env.HOST != ''
+
+    - uses: actions/download-artifact@v4
+      if: env.HOST != ''
+      with:
+        path: artifacts
+
+    # what server/deploy.sh expects: the server's files, the built jk2mvded
+    # and base/ with the site's pack
+    - name: Deploy
+      if: env.HOST != ''
+      run: |
+        mkdir -p bundle/base
+        cp server/compose.yaml server/Dockerfile server/relay.mjs package.json package-lock.json bundle/
+        install -m 755 artifacts/jk2mvded/jk2mvded bundle/jk2mvded
+        cp server/server.cfg artifacts/site/base/opendojo.pk3 bundle/base/
+        install -m 600 /dev/null ~/deploy_key
+        printf '%s\n' "$SSH_KEY" > ~/deploy_key
+        printf '%s\n' "$KNOWN_HOSTS" > ~/known_hosts
+        tar -C bundle -c . | ssh -i ~/deploy_key -o IdentitiesOnly=yes \
+          -o UserKnownHostsFile=~/known_hosts -o StrictHostKeyChecking=yes "deploy@$HOST"
+
   deploy:
     name: Deploy to Vercel
-    needs: build
+    needs: [build, deploy-server]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     env:
