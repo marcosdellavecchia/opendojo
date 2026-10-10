@@ -1,0 +1,17 @@
+{
+  "name": "opendojo",
+  "private": true,
+  "type": "module",
+  "description": "Open Dojo: free multiplayer sword fighting in the browser, on JK2MV",
+  "license": "GPL-2.0-only",
+  "scripts": {
+    "start": "node server/dev.mjs",
+    "test": "node test/play.mjs --clients 2 --script fight --server-log build/test-server.log"
+  },
+  "dependencies": {
+    "ws": "8.22.0"
+  },
+  "devDependencies": {
+    "playwright": "1.58.2"
+  }
+}

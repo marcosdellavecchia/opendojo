@@ -1,0 +1,5 @@
+// The open pack's in-game menus.
+{
+	loadMenu { "ui/open/ingame.menu" }
+	loadMenu { "ui/open/error.menu" }
+}

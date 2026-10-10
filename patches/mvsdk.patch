@@ -1,0 +1,358 @@
+--- a/code/game/g_cmds.c	2026-10-10 12:57:39
++++ b/code/game/g_cmds.c	2026-10-10 12:57:39
+@@ -1422,14 +1422,14 @@
+ 
+ static const char *gameNames[] = {
+ 	"Free For All",
+-	"Holocron FFA",
+-	"Jedi Master",
++	"Relic FFA",
++	"Master Duel",
+ 	"Duel",
+ 	"Single Player",
+ 	"Team FFA",
+ 	"N/A",
+ 	"Capture the Flag",
+-	"Capture the Ysalamiri"
++	"Capture the Item"
+ };
+ 
+ /*
+@@ -2843,7 +2843,30 @@
+ 
+ 	else
+ 	{
+-		if (Q_stricmp(cmd, "addbot") == 0)
++		// Open Dojo: with g_openBots > 0, players may add bots (up to
++		// that many) and remove them, from the in-game menu
++		if ((Q_stricmp(cmd, "addbot") == 0 || Q_stricmp(cmd, "removebot") == 0) && trap_Cvar_VariableIntegerValue("g_openBots") > 0)
++		{
++			int maxBots = trap_Cvar_VariableIntegerValue("g_openBots");
++			int G_RemoveRandomBot( int team );
++			void G_AddRandomBot( int team );
++			int G_CountBotPlayers( int team );
++
++			if (Q_stricmp(cmd, "removebot") == 0)
++			{
++				if (!G_RemoveRandomBot(TEAM_FREE))
++					trap_SendServerCommand( clientNum, "print \"There are no bots to remove.\n\"" );
++			}
++			else if (G_CountBotPlayers(-1) >= maxBots)
++			{
++				trap_SendServerCommand( clientNum, va("print \"This server allows %i bots.\n\"", maxBots) );
++			}
++			else
++			{
++				G_AddRandomBot(TEAM_FREE);
++			}
++		}
++		else if (Q_stricmp(cmd, "addbot") == 0)
+ 		{ //because addbot isn't a recognized command unless you're the server, but it is in the menus regardless
+ //			trap_SendServerCommand( clientNum, va("print \"You can only add bots as the server.\n\"" ) );
+ 			trap_SendServerCommand( clientNum, va("print \"%s.\n\"", G_GetStripEdString("SVINGAME", "ONLY_ADD_BOTS_AS_SERVER")));
+--- a/code/game/g_client.c	2026-10-10 12:57:39
++++ b/code/game/g_client.c	2026-10-10 12:57:39
+@@ -1,3 +1,4 @@
++// Open Dojo: names of its asset pack (patches/mvsdk.patch)
+ // Copyright (C) 1999-2000 Id Software, Inc.
+ //
+ #include "g_local.h"
+@@ -1008,7 +1009,7 @@
+ 	handle = trap_G2API_InitGhoul2Model(&client->ghoul2, afilename, 0, 0, -20, 0, 0);
+ 	if (handle<0)
+ 	{
+-		Com_sprintf( afilename, sizeof( afilename ), "models/players/kyle/model.glm" );
++		Com_sprintf( afilename, sizeof( afilename ), "models/players/open/model.glm" );
+ 		handle = trap_G2API_InitGhoul2Model(&client->ghoul2, afilename, 0, 0, -20, 0, 0);
+ 
+ 		if (handle<0)
+@@ -1021,7 +1022,7 @@
+ 	//rww - just load the "standard" model for the server"
+ 	if (!precachedKyle)
+ 	{
+-		Com_sprintf( afilename, sizeof( afilename ), "models/players/kyle/model.glm" );
++		Com_sprintf( afilename, sizeof( afilename ), "models/players/open/model.glm" );
+ 		handle = trap_G2API_InitGhoul2Model(&precachedKyle, afilename, 0, 0, -20, 0, 0);
+ 
+ 		if (handle<0)
+@@ -1231,9 +1232,9 @@
+ 		Q_strncpyz( model, "galak/default", sizeof(model) );
+ 	}
+ 	
+-	if ( g_mv_fixbrokenmodels.integer && (!Q_stricmpn(model, "kyle/fpls", strlen("kyle/fpls")) || !Q_stricmp(model, "morgan") || (!Q_stricmpn(model, "morgan/", strlen("morgan/")) && (Q_stricmp(model, "morgan/default_mp") && Q_stricmp(model, "morgan/red") && Q_stricmp(model, "morgan/blue")))) )
++	if ( g_mv_fixbrokenmodels.integer && (!Q_stricmpn(model, "open/fpls", strlen("open/fpls")) || !Q_stricmp(model, "morgan") || (!Q_stricmpn(model, "morgan/", strlen("morgan/")) && (Q_stricmp(model, "morgan/default_mp") && Q_stricmp(model, "morgan/red") && Q_stricmp(model, "morgan/blue")))) )
+ 	{
+-		Q_strncpyz( model, "kyle/default", sizeof(model) );
++		Q_strncpyz( model, "open/default", sizeof(model) );
+ 	}
+ 
+ 	Q_strncpyz( forcePowers, Info_ValueForKey (userinfo, "forcepowers"), sizeof( forcePowers ) );
+--- a/code/game/g_spawn.c	2026-10-10 12:57:39
++++ b/code/game/g_spawn.c	2026-10-10 12:57:39
+@@ -1,3 +1,4 @@
++// Open Dojo: names of its asset pack (patches/mvsdk.patch)
+ // Copyright (C) 1999-2000 Id Software, Inc.
+ //
+ 
+@@ -775,7 +776,7 @@
+ 
+ 	if (!precachedKyle)
+ 	{
+-		trap_G2API_InitGhoul2Model(&precachedKyle, "models/players/kyle/model.glm", 0, 0, -20, 0, 0);
++		trap_G2API_InitGhoul2Model(&precachedKyle, "models/players/open/model.glm", 0, 0, -20, 0, 0);
+ 	}
+ 
+ 	if (!g2SaberInstance)
+--- a/code/game/g_misc.c	2026-10-10 12:57:39
++++ b/code/game/g_misc.c	2026-10-10 12:57:39
+@@ -1,3 +1,4 @@
++// Open Dojo: names of its asset pack (patches/mvsdk.patch)
+ // Copyright (C) 1999-2000 Id Software, Inc.
+ //
+ // g_misc.c
+@@ -153,7 +154,7 @@
+ void SP_misc_G2model( gentity_t *ent ) {
+ 
+ #if 0
+-	char name1[200] = "models/players/kyle/modelmp.glm";
++	char name1[200] = "models/players/open/modelmp.glm";
+ 	trap_G2API_InitGhoul2Model(&ent->s, name1, G_ModelIndex( name1 ), 0, 0, 0, 0);
+ 	trap_G2API_SetBoneAnim(ent->s.ghoul2, 0, "model_root", 0, 12, BONE_ANIM_OVERRIDE_LOOP, 1.0f, level.time, -1, -1);
+ 	ent->s.radius = 150;
+--- a/code/cgame/cg_local.h	2026-10-10 12:57:39
++++ b/code/cgame/cg_local.h	2026-10-10 12:57:39
+@@ -1,3 +1,4 @@
++// Open Dojo: names of its asset pack (patches/mvsdk.patch)
+ // Copyright (C) 1999-2000 Id Software, Inc.
+ //
+ #include "../game/q_shared.h"
+@@ -77,8 +78,8 @@
+ #define TEAM_OVERLAY_MAXNAME_WIDTH	12
+ #define TEAM_OVERLAY_MAXLOCATION_WIDTH	16
+ 
+-#define	DEFAULT_MODEL			"kyle"
+-#define	DEFAULT_TEAM_MODEL		"kyle"
++#define	DEFAULT_MODEL			"open"
++#define	DEFAULT_TEAM_MODEL		"open"
+ 
+ #define DEFAULT_FORCEPOWERS		"5-1-000000000000000000"
+ //"rank-side-heal.lev.speed.push.pull.tele.grip.lightning.rage.protect.absorb.teamheal.teamforce.drain.see"
+--- a/code/cgame/cg_players.c	2026-10-10 12:57:39
++++ b/code/cgame/cg_players.c	2026-10-10 12:57:39
+@@ -1,3 +1,4 @@
++// Open Dojo: names of its asset pack (patches/mvsdk.patch)
+ // Copyright (C) 1999-2000 Id Software, Inc.
+ //
+ // cg_players.c -- handle the media and animation for player entities
+@@ -102,7 +103,7 @@
+ //I don't much care for hardcoded strings, but this seems the best way to go.
+ static qboolean CG_IsValidCharacterModel(const char *modelName, const char *skinName)
+ {
+-	if (!Q_stricmp(modelName, "kyle"))
++	if (!Q_stricmp(modelName, "open"))
+ 	{
+ 		if (!Q_stricmp(skinName, "fpls"))
+ 		{
+@@ -244,7 +245,7 @@
+ 
+ 	if (badModel)
+ 	{
+-		modelName = "kyle";
++		modelName = "open";
+ 		skinName = "default";
+ 		// MVSDK: Suppress warning message for other client models
+ 		if (cg_developer.integer || clientNum == -1 || clientNum == cg.clientNum) {
+@@ -256,7 +257,7 @@
+ 
+ 	if ( (cg_mv_fixbrokenmodelsclient.integer == 1 || (cg_mv_fixbrokenmodelsclient.integer && jk2startversion > VERSION_1_02)) && !CG_IsValidCharacterModel(modelName, skinName))
+ 	{
+-		modelName = "kyle";
++		modelName = "open";
+ 		skinName = "default";
+ 	}
+ 
+@@ -5863,12 +5864,12 @@
+ 	{
+ 		int				skinHandle;
+ 
+-		skinHandle = trap_R_RegisterSkin("models/players/kyle/model_fpls2.skin");
++		skinHandle = trap_R_RegisterSkin("models/players/open/model_fpls2.skin");
+ 
+ 		trap_G2API_CleanGhoul2Models(&(ci->ghoul2Model));
+ 
+ 		ci->torsoSkin = skinHandle;
+-		trap_G2API_InitGhoul2Model(&ci->ghoul2Model, "models/players/kyle/model.glm", 0, ci->torsoSkin, 0, 0, 0);
++		trap_G2API_InitGhoul2Model(&ci->ghoul2Model, "models/players/open/model.glm", 0, ci->torsoSkin, 0, 0, 0);
+ 
+ 		ci->bolt_rhand = trap_G2API_AddBolt(ci->ghoul2Model, 0, "*r_hand");
+ 		
+--- a/code/cgame/cg_main.c	2026-10-10 12:57:39
++++ b/code/cgame/cg_main.c	2026-10-10 12:57:39
+@@ -1,3 +1,4 @@
++// Open Dojo: names of its asset pack (patches/mvsdk.patch)
+ // Copyright (C) 1999-2000 Id Software, Inc.
+ //
+ // cg_main.c -- initialization and primary entry point for cgame
+@@ -2597,8 +2598,8 @@
+ 	//	if desired during parse.  Dunno how legal it is to store in these cgDC things, but it causes no harm
+ 	//	and even if/when they get overwritten they'll be legalised by the menu asset parser :-)
+ //	CG_LoadFonts();
+-	cgDC.Assets.qhSmallFont  = trap_R_RegisterFont("ocr_a");
+-	cgDC.Assets.qhMediumFont = trap_R_RegisterFont("ergoec");
++	cgDC.Assets.qhSmallFont  = trap_R_RegisterFont("open_small");
++	cgDC.Assets.qhMediumFont = trap_R_RegisterFont("open_medium");
+ 	cgDC.Assets.qhBigFont = cgDC.Assets.qhMediumFont;
+ 
+ 	memset( &cgs, 0, sizeof( cgs ) );
+--- a/code/cgame/cg_saga.c	2026-10-10 12:57:39
++++ b/code/cgame/cg_saga.c	2026-10-10 12:57:39
+@@ -1,11 +1,12 @@
++// Open Dojo: names of its asset pack (patches/mvsdk.patch)
+ #include "cg_local.h"
+ #include "../game/bg_saga.h"
+ 
+-#define DEFAULT_WIN_OBJECTIVE		"sound/chars/kyle/prototype/personal.mp3"
+-#define DEFAULT_LOSE_OBJECTIVE		"sound/chars/kyle/prototype/isntworking.mp3"
++#define DEFAULT_WIN_OBJECTIVE		"sound/chars/open/prototype/personal.mp3"
++#define DEFAULT_LOSE_OBJECTIVE		"sound/chars/open/prototype/isntworking.mp3"
+ 
+-#define DEFAULT_WIN_ROUND			"sound/chars/kyle/prototype/personal.mp3"
+-#define DEFAULT_LOSE_ROUND			"sound/chars/kyle/prototype/isntworking.mp3"
++#define DEFAULT_WIN_ROUND			"sound/chars/open/prototype/personal.mp3"
++#define DEFAULT_LOSE_ROUND			"sound/chars/open/prototype/isntworking.mp3"
+ 
+ char		cg_saga_info[MAX_SAGA_INFO_SIZE];
+ int			cg_saga_valid;
+--- a/code/cgame/cg_draw.c	2026-10-10 12:57:39
++++ b/code/cgame/cg_draw.c	2026-10-10 12:57:39
+@@ -1,3 +1,4 @@
++// Open Dojo: names of its asset pack (patches/mvsdk.patch)
+ // Copyright (C) 1999-2000 Id Software, Inc.
+ //
+ // cg_draw.c -- draw all of the graphical elements during
+@@ -3622,9 +3623,9 @@
+ 		if ( cgs.gametype == GT_FFA ) {
+ 			s = "Free For All";
+ 		} else if ( cgs.gametype == GT_HOLOCRON ) {
+-			s = "Holocron FFA";
++			s = "Relic FFA";
+ 		} else if ( cgs.gametype == GT_JEDIMASTER ) {
+-			s = "Jedi Master";
++			s = "Master Duel";
+ 		} else if ( cgs.gametype == GT_TEAM ) {
+ 			s = "Team FFA";
+ 		} else if ( cgs.gametype == GT_SAGA ) {
+@@ -3632,7 +3633,7 @@
+ 		} else if ( cgs.gametype == GT_CTF ) {
+ 			s = "Capture the Flag";
+ 		} else if ( cgs.gametype == GT_CTY ) {
+-			s = "Capture the Ysalamiri";
++			s = "Capture the Item";
+ 		} else {
+ 			s = "";
+ 		}
+--- a/code/cgame/cg_info.c	2026-10-10 12:57:39
++++ b/code/cgame/cg_info.c	2026-10-10 12:57:39
+@@ -1,3 +1,4 @@
++// Open Dojo: names of its asset pack (patches/mvsdk.patch)
+ // Copyright (C) 1999-2000 Id Software, Inc.
+ //
+ // cg_info.c -- display information while data is being loading
+@@ -205,10 +206,10 @@
+ 		s = "Free For All";
+ 		break;
+ 	case GT_HOLOCRON:
+-		s = "Holocron FFA";
++		s = "Relic FFA";
+ 		break;
+ 	case GT_JEDIMASTER:
+-		s = "Jedi Master";
++		s = "Master Duel";
+ 		break;
+ 	case GT_SINGLE_PLAYER:
+ 		s = "Single Player";
+@@ -226,7 +227,7 @@
+ 		s = "Capture The Flag";
+ 		break;
+ 	case GT_CTY:
+-		s = "Capture The Ysalamiri";
++		s = "Capture the Item";
+ 		break;
+ 	default:
+ 		s = "Unknown Gametype";
+--- a/code/cgame/cg_newDraw.c	2026-10-10 12:57:39
++++ b/code/cgame/cg_newDraw.c	2026-10-10 12:57:39
+@@ -1,3 +1,4 @@
++// Open Dojo: names of its asset pack (patches/mvsdk.patch)
+ #include "cg_local.h"
+ #include "../ui/ui_shared.h"
+ 
+@@ -358,9 +359,9 @@
+ 	if ( cgs.gametype == GT_FFA ) {
+ 		return "Free For All";
+ 	} else if ( cgs.gametype == GT_HOLOCRON ) {
+-		return "Holocron FFA";
++		return "Relic FFA";
+ 	} else if ( cgs.gametype == GT_JEDIMASTER ) {
+-		return "Jedi Master";
++		return "Master Duel";
+ 	} else if ( cgs.gametype == GT_TEAM ) {
+ 		return "Team FFA";
+ 	} else if ( cgs.gametype == GT_SAGA ) {
+@@ -368,7 +369,7 @@
+ 	} else if ( cgs.gametype == GT_CTF ) {
+ 		return "Capture the Flag";
+ 	} else if ( cgs.gametype == GT_CTY ) {
+-		return "Capture the Ysalamiri";
++		return "Capture the Item";
+ 	}
+ 	return "";
+ }
+--- a/code/ui/ui_main.c	2026-10-10 12:57:39
++++ b/code/ui/ui_main.c	2026-10-10 12:57:39
+@@ -1,3 +1,4 @@
++// Open Dojo: names of its asset pack (patches/mvsdk.patch)
+ // Copyright (C) 1999-2000 Id Software, Inc.
+ //
+ /*
+@@ -344,7 +345,7 @@
+ 
+ static serverFilter_t serverGameFilters[] = {
+ 	{"All", "" },
+-	{"Jedi Knight 2", "" },
++	{"Open Dojo", "" },
+ };
+ static const int numServerGameFilters = sizeof(serverGameFilters) / sizeof(serverFilter_t);
+ 
+@@ -2245,7 +2246,7 @@
+ 			return uiInfo.aliasList[j].ai;
+ 		}
+ 	}
+-	return "Kyle";
++	return "Player";
+ }
+ 
+ 
+@@ -8207,7 +8208,7 @@
+ 	{ &ui_captureLimit, "ui_captureLimit", "5", 0},
+ 	{ &ui_smallFont, "ui_smallFont", "0.25", CVAR_ARCHIVE},
+ 	{ &ui_bigFont, "ui_bigFont", "0.4", CVAR_ARCHIVE},
+-	{ &ui_findPlayer, "ui_findPlayer", "Kyle", CVAR_ARCHIVE},
++	{ &ui_findPlayer, "ui_findPlayer", "Player", CVAR_ARCHIVE},
+ 	{ &ui_Q3Model, "ui_q3model", "0", CVAR_ARCHIVE},
+ 	{ &ui_recordSPDemo, "ui_recordSPDemo", "0", CVAR_ARCHIVE},
+ 	{ &ui_realWarmUp, "g_warmup", "20", CVAR_ARCHIVE},
+--- a/code/ui/ui_gameinfo.c	2026-10-10 12:57:39
++++ b/code/ui/ui_gameinfo.c	2026-10-10 12:57:39
+@@ -1,3 +1,4 @@
++// Open Dojo: names of its asset pack (patches/mvsdk.patch)
+ // Copyright (C) 1999-2000 Id Software, Inc.
+ //
+ //
+@@ -318,5 +319,5 @@
+ 	if (info) {
+ 		return Info_ValueForKey( info, "name" );
+ 	}
+-	return "Kyle";
++	return "Player";
+ }

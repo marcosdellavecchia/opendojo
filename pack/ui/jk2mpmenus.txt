@@ -1,0 +1,5 @@
+// The open pack's menus: few, since the page joins the server directly.
+{
+	loadMenu { "ui/open/main.menu" }
+	loadMenu { "ui/open/error.menu" }
+}

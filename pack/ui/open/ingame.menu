@@ -1,0 +1,155 @@
+// written for the open pack
+{
+	assetGlobalDef
+	{
+		font "open_medium" 20
+		smallFont "open_small" 18
+		bigFont "open_large" 20
+		cursor "ui/open/cursor"
+		stripedFile "menus0"
+		stripedFile "menus3"
+		fadeClamp 1.0
+		fadeCycle 1
+		fadeAmount 0.1
+		shadowColor 0.1 0.1 0.1 0.25
+	}
+	menuDef
+	{
+		name "ingame"
+		visible 0
+		fullScreen 0
+		rect 0 0 640 480
+		focusColor 0.4 0.7 1 1
+		style WINDOW_STYLE_FILLED
+		backcolor 0 0 0 0.6
+		onESC { close ingame }
+		itemDef
+		{
+			name "title"
+			text "Paused"
+			style WINDOW_STYLE_EMPTY
+			rect 0 100 640 40
+			forecolor 1 1 1 1
+			font 3
+			textscale 1.2
+			textalign ITEM_ALIGN_CENTER
+			textalignx 320
+			visible 1
+			decoration
+		}
+		itemDef
+		{
+			name "resume"
+			text "Resume"
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_FILLED
+			rect 220 160 200 32
+			backcolor 0.12 0.15 0.2 0.9
+			forecolor 0.9 0.93 1 1
+			font 2
+			textscale 1
+			textalign ITEM_ALIGN_CENTER
+			textalignx 100
+			textaligny 4
+			visible 1
+			mouseEnter { setitemcolor "resume" backcolor 0.2 0.45 0.8 1 }
+			mouseExit { setitemcolor "resume" backcolor 0.12 0.15 0.2 0.9 }
+			action { close ingame }
+		}
+		itemDef
+		{
+			name "join"
+			text "Join the fight"
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_FILLED
+			rect 220 200 200 32
+			backcolor 0.12 0.15 0.2 0.9
+			forecolor 0.9 0.93 1 1
+			font 2
+			textscale 1
+			textalign ITEM_ALIGN_CENTER
+			textalignx 100
+			textaligny 4
+			visible 1
+			mouseEnter { setitemcolor "join" backcolor 0.2 0.45 0.8 1 }
+			mouseExit { setitemcolor "join" backcolor 0.12 0.15 0.2 0.9 }
+			action { exec "team free"; close ingame }
+		}
+		itemDef
+		{
+			name "spectate"
+			text "Watch"
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_FILLED
+			rect 220 240 200 32
+			backcolor 0.12 0.15 0.2 0.9
+			forecolor 0.9 0.93 1 1
+			font 2
+			textscale 1
+			textalign ITEM_ALIGN_CENTER
+			textalignx 100
+			textaligny 4
+			visible 1
+			mouseEnter { setitemcolor "spectate" backcolor 0.2 0.45 0.8 1 }
+			mouseExit { setitemcolor "spectate" backcolor 0.12 0.15 0.2 0.9 }
+			action { exec "team spectator"; close ingame }
+		}
+		itemDef
+		{
+			name "addbot"
+			text "Add a bot"
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_FILLED
+			rect 220 280 200 32
+			backcolor 0.12 0.15 0.2 0.9
+			forecolor 0.9 0.93 1 1
+			font 2
+			textscale 1
+			textalign ITEM_ALIGN_CENTER
+			textalignx 100
+			textaligny 4
+			visible 1
+			mouseEnter { setitemcolor "addbot" backcolor 0.2 0.45 0.8 1 }
+			mouseExit { setitemcolor "addbot" backcolor 0.12 0.15 0.2 0.9 }
+			action { exec "addbot"; close ingame }
+		}
+		itemDef
+		{
+			name "removebot"
+			text "Remove a bot"
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_FILLED
+			rect 220 320 200 32
+			backcolor 0.12 0.15 0.2 0.9
+			forecolor 0.9 0.93 1 1
+			font 2
+			textscale 1
+			textalign ITEM_ALIGN_CENTER
+			textalignx 100
+			textaligny 4
+			visible 1
+			mouseEnter { setitemcolor "removebot" backcolor 0.2 0.45 0.8 1 }
+			mouseExit { setitemcolor "removebot" backcolor 0.12 0.15 0.2 0.9 }
+			action { exec "removebot" }
+		}
+		itemDef
+		{
+			name "leave"
+			text "Leave the server"
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_FILLED
+			rect 220 370 200 32
+			backcolor 0.12 0.15 0.2 0.9
+			forecolor 0.9 0.93 1 1
+			font 2
+			textscale 1
+			textalign ITEM_ALIGN_CENTER
+			textalignx 100
+			textaligny 4
+			visible 1
+			mouseEnter { setitemcolor "leave" backcolor 0.2 0.45 0.8 1 }
+			mouseExit { setitemcolor "leave" backcolor 0.12 0.15 0.2 0.9 }
+			action { exec "disconnect" }
+		}
+	}
+}

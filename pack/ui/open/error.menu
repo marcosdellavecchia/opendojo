@@ -1,0 +1,48 @@
+// written for the open pack
+{
+	menuDef
+	{
+		name "error_popmenu"
+		visible 0
+		fullScreen 0
+		popup
+		rect 120 160 400 160
+		focusColor 0.4 0.7 1 1
+		style WINDOW_STYLE_FILLED
+		backcolor 0.08 0.04 0.04 0.95
+		onESC { close error_popmenu }
+		itemDef
+		{
+			name "message"
+			type ITEM_TYPE_TEXT
+			style WINDOW_STYLE_EMPTY
+			rect 10 20 380 80
+			cvar "com_errorMessage"
+			forecolor 1 0.8 0.8 1
+			font 2
+			textscale 0.8
+			textalign ITEM_ALIGN_CENTER
+			textalignx 190
+			autowrapped
+			visible 1
+			decoration
+		}
+		itemDef
+		{
+			name "ok"
+			text "OK"
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_FILLED
+			rect 150 110 100 30
+			backcolor 0.3 0.12 0.12 1
+			forecolor 1 1 1 1
+			font 2
+			textscale 1
+			textalign ITEM_ALIGN_CENTER
+			textalignx 50
+			textaligny 2
+			visible 1
+			action { close error_popmenu }
+		}
+	}
+}
