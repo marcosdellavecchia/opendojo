@@ -4,22 +4,6 @@ if(NOT InMV)
 endif(NOT InMV)
 
 if(BuildMVSDK)
-	# Claude's bot (claude/) hooks into the game code: its patch goes into
-	# the mvsdk submodule unless it's in already
-	set(ClaudePatch "${CMAKE_CURRENT_SOURCE_DIR}/claude/mvsdk.patch")
-	execute_process(COMMAND git apply --reverse --check "${ClaudePatch}"
-		WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/mvsdk"
-		RESULT_VARIABLE ClaudePatchIn OUTPUT_QUIET ERROR_QUIET)
-	if(NOT ClaudePatchIn EQUAL 0)
-		execute_process(COMMAND git apply "${ClaudePatch}"
-			WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/mvsdk"
-			RESULT_VARIABLE ClaudePatchApplied)
-		if(NOT ClaudePatchApplied EQUAL 0)
-			message(FATAL_ERROR "src/claude/mvsdk.patch doesn't apply to src/mvsdk, which has other changes. "
-				"After changing the hooks there: git -C src/mvsdk diff > src/claude/mvsdk.patch")
-		endif()
-	endif()
-
 	add_subdirectory("mvsdk")
 endif()
 
@@ -626,16 +610,10 @@ if (BuildMVMP)
 		endif()
 	endif()
 
-	# jk2mvmenu and assetsmv are required to run JK2MV
-	if(EMSCRIPTEN)
-		# the browser build uses the ui QVM for the main menu as well
-		add_dependencies(${MVMP} assetsmv)
-	else()
-		add_dependencies(${MVMP} ${MVMENU} assetsmv)
-	endif()
-
-	if(BuildMVSDK)
-		add_dependencies(${MVMP} assetsmv2)
+	# jk2mvmenu is required to run the native JK2MV. Open Dojo runs on its
+	# own asset pack, not on JK2MV's assetsmv.pk3, so it isn't built here.
+	if(NOT EMSCRIPTEN)
+		add_dependencies(${MVMP} ${MVMENU})
 	endif()
 
 	if(NOT EMSCRIPTEN)
@@ -745,11 +723,6 @@ if (BuildMVDED)
 	target_link_libraries(${MVDED} ${MVDEDLibraries} ${MINIZIP_LIBRARIES} ${ZLIB_LIBRARIES})
 	set_target_properties(${MVDED} PROPERTIES PROJECT_LABEL "jk2mvded")
 
-	add_dependencies(${MVDED} assetsmv)
-
-	if(BuildMVSDK)
-		add_dependencies(${MVDED} assetsmv2)
-	endif()
 
 	# installation
 	if(WIN32 OR APPLE OR BuildPortableVersion)
