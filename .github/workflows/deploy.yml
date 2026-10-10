@@ -1,0 +1,87 @@
+# Builds everything (build.sh) and deploys the static site, build/site/, to
+# Vercel on every push to main. Vercel can't build the repository itself (it
+# has no Emscripten, q3map2 or the pack generator), so vercel.json turns off
+# its own builds. In the repository's settings (see "Deploying" in README.md):
+#   - the secrets VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID; until
+#     they're set, it builds but doesn't deploy
+#   - the variable OPENDOJO_SERVER, the game server (host:port), and
+#     optionally OPENDOJO_RELAY (wss://…/relay, by default
+#     wss://<host>/relay); until it's set, the page says it has no server
+# The page's source link points at this repository at the deployed commit.
+
+name: Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: main
+
+# the newest push wins
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build the site
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    # q3map2's libraries
+    - name: Install build tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends build-essential cmake pkg-config \
+          libglib2.0-dev libxml2-dev libpng-dev libjpeg-turbo8-dev libassimp-dev libminizip-dev zlib1g-dev
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Install Emscripten
+      run: |
+        git clone --depth 1 https://github.com/emscripten-core/emsdk.git "$RUNNER_TEMP/emsdk"
+        "$RUNNER_TEMP/emsdk/emsdk" install 6.0.10
+        "$RUNNER_TEMP/emsdk/emsdk" activate 6.0.10
+
+    - name: Build
+      run: |
+        . "$RUNNER_TEMP/emsdk/emsdk_env.sh"
+        set -- --source "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/tree/$GITHUB_SHA"
+        if [ -n "$OPENDOJO_SERVER" ]; then set -- "$@" --server "$OPENDOJO_SERVER"; fi
+        if [ -n "$OPENDOJO_RELAY" ]; then set -- "$@" --relay "$OPENDOJO_RELAY"; fi
+        ./build.sh "$@"
+      env:
+        OPENDOJO_SERVER: ${{ vars.OPENDOJO_SERVER }}
+        OPENDOJO_RELAY: ${{ vars.OPENDOJO_RELAY }}
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: site
+        path: build/site
+
+  deploy:
+    name: Deploy to Vercel
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+    - uses: actions/download-artifact@v4
+      if: env.VERCEL_TOKEN != ''
+      with:
+        name: site
+        path: site
+
+    - name: Deploy
+      if: env.VERCEL_TOKEN != ''
+      run: npx --yes vercel@latest deploy site --prod --yes --token "$VERCEL_TOKEN"

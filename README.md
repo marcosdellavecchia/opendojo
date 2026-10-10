@@ -136,6 +136,17 @@ Not deployed yet. Two parts:
    and serve `build/site/` from any static host, at a domain's root or
    under a path.
 
+   `.github/workflows/deploy.yml` does this on every push to main: it runs
+   `./build.sh` on GitHub and deploys `build/site/` to Vercel, with the
+   source link at the pushed commit (`vercel.json` turns off Vercel's own
+   builds, which can't build this). It needs, in the repository's settings:
+   - the secrets `VERCEL_TOKEN` (an account token), `VERCEL_ORG_ID` and
+     `VERCEL_PROJECT_ID` (from `.vercel/project.json` after `vercel link`);
+     without them it builds but doesn't deploy
+   - the variable `OPENDOJO_SERVER` (`<host>:28170`), and `OPENDOJO_RELAY`
+     if the relay isn't at `wss://<host>/relay`; without it the page says it
+     has no server
+
 Before publishing, read [LEGAL.md](LEGAL.md).
 
 ## License and credits
