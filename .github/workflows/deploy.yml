@@ -34,7 +34,7 @@ jobs:
     - name: Install build tools
       run: |
         sudo apt-get update
-        sudo apt-get install -y --no-install-recommends build-essential cmake pkg-config \
+        sudo apt-get install -y --no-install-recommends build-essential clang-19 cmake pkg-config \
           libglib2.0-dev libxml2-dev libpng-dev libjpeg-turbo8-dev libassimp-dev libminizip-dev zlib1g-dev
 
     - uses: actions/setup-python@v5
@@ -51,7 +51,8 @@ jobs:
         "$RUNNER_TEMP/emsdk/emsdk" install 6.0.10
         "$RUNNER_TEMP/emsdk/emsdk" activate 6.0.10
 
-    # clang, as on macOS: GCC 13 rejects q3map2's vector initializers
+    # clang 19, as on macOS: GCC 13 rejects q3map2's vector initializers,
+    # clang 18 its C++20 alias template deduction
     - name: Build
       run: |
         . "$RUNNER_TEMP/emsdk/emsdk_env.sh"
@@ -62,8 +63,8 @@ jobs:
       env:
         OPENDOJO_SERVER: ${{ vars.OPENDOJO_SERVER }}
         OPENDOJO_RELAY: ${{ vars.OPENDOJO_RELAY }}
-        CC: clang
-        CXX: clang++
+        CC: clang-19
+        CXX: clang++-19
 
     - uses: actions/upload-artifact@v4
       with:
