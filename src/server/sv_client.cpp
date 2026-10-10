@@ -1168,7 +1168,7 @@ void SV_UserinfoChanged( client_t *cl ) {
 		Q_strncpyz(model, Info_ValueForKey(cl->userinfo, "model"), sizeof(model));
 		if (!Q_stricmpn(model, "kyle/fpls", 9) || !Q_stricmp(model, "morgan") || (!Q_stricmpn(model, "morgan/", 7) && (Q_stricmp(model, "morgan/default_mp") && Q_stricmp(model, "morgan/red") && Q_stricmp(model, "morgan/blue"))))
 		{
-			if ( !Info_SetValueForKey(cl->userinfo, "model", "kyle/default") )
+			if ( !Info_SetValueForKey(cl->userinfo, "model", "open/default") )
 			{
 				SV_DropClient( cl, "userinfo string length exceeded");
 				return;

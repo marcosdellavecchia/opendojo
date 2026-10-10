@@ -3450,7 +3450,9 @@ static void FS_Startup( const char *gameName ) {
 
 	fs_loadjka = Cvar_Get("fs_loadjka", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
-	if (!FS_AllPath_Base_FileExists("assets5.pk3")) {
+	// Open Dojo runs on its own asset pack, without the game's
+	// assets(0,1,2,5).pk3
+	if (0) {
 		// assets files found in none of the paths
 #if defined(INSTALLED)
 #ifdef WIN32

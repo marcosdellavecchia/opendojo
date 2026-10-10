@@ -2926,9 +2926,9 @@ void CL_Init( void ) {
 	Cvar_Get("name", "Padawan", CVAR_USERINFO | CVAR_ARCHIVE | CVAR_GLOBAL);
 	Cvar_Get("rate", "50000", CVAR_USERINFO | CVAR_ARCHIVE | CVAR_GLOBAL);
 	Cvar_Get("snaps", "30", CVAR_USERINFO | CVAR_ARCHIVE | CVAR_GLOBAL);
-	Cvar_Get("model", "kyle/default", CVAR_USERINFO | CVAR_ARCHIVE | CVAR_GLOBAL);
+	Cvar_Get("model", "open/default", CVAR_USERINFO | CVAR_ARCHIVE | CVAR_GLOBAL);
 //	Cvar_Get ("headmodel", "kyle/default", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get("team_model", "kyle/default", CVAR_USERINFO | CVAR_ARCHIVE | CVAR_GLOBAL);
+	Cvar_Get("team_model", "open/default", CVAR_USERINFO | CVAR_ARCHIVE | CVAR_GLOBAL);
 //	Cvar_Get ("team_headmodel", "kyle/default", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("forcepowers", "7-1-032330000000001333", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("g_redTeam", "Empire", CVAR_SERVERINFO | CVAR_ARCHIVE);

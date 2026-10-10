@@ -572,12 +572,15 @@ Ghoul2 Insert End
 	}
 
 	// decide which serverversion to host
+	// Open Dojo: its asset pack works with every version, so host the
+	// one mv_serverversion asks for (1.04 by default) without the game's
+	// assets2.pk3/assets5.pk3
 	mv_serverversion = Cvar_Get("mv_serverversion", "1.04", CVAR_ARCHIVE | CVAR_LATCH | CVAR_GLOBAL);
-	if (FS_AllPath_Base_FileExists("assets5.pk3") && (!strcmp(mv_serverversion->string, "auto") || !strcmp(mv_serverversion->string, "1.04"))) {
+	if ((!strcmp(mv_serverversion->string, "auto") || !strcmp(mv_serverversion->string, "1.04"))) {
 		Com_Printf("serverversion set to 1.04\n");
 		MV_SetCurrentGameversion(VERSION_1_04);
 	}
-	else if (FS_AllPath_Base_FileExists("assets2.pk3") && (!strcmp(mv_serverversion->string, "auto") || !strcmp(mv_serverversion->string, "1.03"))) {
+	else if (!strcmp(mv_serverversion->string, "1.03")) {
 		Com_Printf("serverversion set to 1.03\n");
 		MV_SetCurrentGameversion(VERSION_1_03);
 	} else {
