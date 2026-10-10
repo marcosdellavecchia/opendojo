@@ -99,7 +99,9 @@ def save_alpha_tga(staging, rel, alpha):
 
 
 def charset(staging):
-    """gfx/2d/charsgrid_med: the console's 16x16 grid of 32x32 cells."""
+    """gfx/2d/charsgrid_med: the console's 16x16 grid of 32x32 cells. The
+    engine reads only the left half of each cell (SCR_DrawSmallChar), so the
+    glyphs are drawn there."""
     cell = 32
     font = load(MONO, None, 30)
     ascent, _ = font.getmetrics()
@@ -111,7 +113,7 @@ def charset(staging):
         ch = bytes([c]).decode('cp1252', errors='replace')
         w = font.getlength(ch)
         cx, cy = (c % 16) * cell, (c // 16) * cell
-        draw.text((cx + (cell - w) / 2, cy + cell - 6 - ascent), ch, fill=255, font=font)
+        draw.text((cx + (cell / 2 - w) / 2, cy + cell - 6 - ascent), ch, fill=255, font=font)
     save_alpha_tga(staging, 'gfx/2d/charsgrid_med.tga', img)
 
 

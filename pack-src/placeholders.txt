@@ -51,7 +51,6 @@ gfx/2d/binocularNumOverlay
 gfx/2d/binocularWindow
 gfx/2d/binSideArrow
 gfx/2d/binTopTri
-gfx/2d/code_new_roman
 gfx/2d/defer.tga
 gfx/2d/demorec
 gfx/2d/lag
