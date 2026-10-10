@@ -30,17 +30,20 @@ git -C "$root/src/mvsdk" archive HEAD | tar -x -C "$out/mvsdk"
 (cd "$out/mvsdk-build" && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
 	"$out/mvsdk" > cmake.log && make qvms > make.log 2>&1) || { tail -20 "$out/mvsdk-build/make.log"; exit 1; }
 
-# 3
+# 3 (the NetRadiant-custom commit it was made with)
+netradiant=8216133984031afaa9a857b56ea66dd9c3d54b26
 q3map2="$out/third_party/netradiant-custom/install/q3map2"
 if [ ! -x "$q3map2" ]; then
 	echo "build: q3map2"
 	mkdir -p "$out/third_party"
 	[ -d "$out/third_party/netradiant-custom" ] ||
-		git clone --depth 1 https://github.com/Garux/netradiant-custom.git "$out/third_party/netradiant-custom"
+		{ git init -q "$out/third_party/netradiant-custom" &&
+		git -C "$out/third_party/netradiant-custom" fetch -q --depth 1 https://github.com/Garux/netradiant-custom.git $netradiant &&
+		git -C "$out/third_party/netradiant-custom" checkout -q FETCH_HEAD; }
 	jpeg=$(brew --prefix jpeg-turbo 2>/dev/null || echo /usr)
 	(cd "$out/third_party/netradiant-custom" && make -j8 DEPENDENCIES_CHECK=off BUILD=release \
 		CPPFLAGS_JPEG="-I$jpeg/include" LIBS_JPEG="-L$jpeg/lib -ljpeg" binaries-q3map2 > q3map2-build.log 2>&1) ||
-		{ tail -20 "$out/third_party/netradiant-custom/q3map2-build.log"; exit 1; }
+		{ grep -m 10 -A 3 'error' "$out/third_party/netradiant-custom/q3map2-build.log"; exit 1; }
 fi
 
 # 4
