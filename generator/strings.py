@@ -109,6 +109,11 @@ TEXT = {
         'SUICIDE_GENERICDEATH_FEMALE': 'gave up',
         'SUICIDE_GENERICDEATH_GENDERLESS': 'gave up',
     },
+    'INGAME': {
+        'item_medpak_instant': 'Health +25',
+        'item_shield_sm_instant': 'Shield +25',
+        'item_shield_lrg_instant': 'Shield +100',
+    },
     'SVINGAME': {
         'PLCONNECT': 'is connecting',
         'PLENTER': 'entered the game',

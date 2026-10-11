@@ -8,7 +8,7 @@ engine for Jedi Knight II multiplayer, compiled to WebAssembly, with its GPL
 game code ([MVSDK](https://github.com/mvdevs/mvsdk)): the same movement,
 saber combat and netcode. Everything the game shows and plays is made for
 this project: the map, the character and its animations, textures, sounds,
-menus and text, in a 2.4 MB asset pack. **No files from the commercial game
+menus and text, in a 2.6 MB asset pack. **No files from the commercial game
 are used.** See [ASSETS.md](ASSETS.md) for where every file comes from.
 
 It started as a proof of concept inside [jk2web](https://www.jk2web.com),
@@ -110,6 +110,11 @@ browser (jk2mvmp.wasm) ──wss──▶ relay.mjs ──UDP 127.0.0.1──▶
   pack. The server's game module also lets players add bots
   (`addbot`/`removebot`, up to `g_openBots`).
 - **The pack**: everything is generated or written here (see ASSETS.md).
+  The default FFA map is a hall with a central shield objective, an upper
+  gallery with stairs along each long side, and a workshop wing behind each
+  short side: six outer shield stations, health along the side routes, under
+  the galleries and in the wings, and bot waypoints across every level
+  (`generator/bots.py` fails the build if a route point can't be reached).
   The player model is a Ghoul2 skeleton with procedural animations for
   every animation the game code knows. Saber moves follow MVSDK's own table
   of saber moves, because the server animates every player to trace the

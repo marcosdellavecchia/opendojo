@@ -20,6 +20,7 @@ import arena
 import bots
 import effects
 import fonts
+import items
 import model
 import sounds
 import strings
@@ -98,6 +99,7 @@ def main():
     strings.generate(STAGING)
     fonts.generate(STAGING)
     ui.generate(STAGING)
+    items.generate(STAGING)
     print('model:', model.generate(STAGING, args.mvsdk))
     effects.generate(STAGING, set())
     print('sounds:', sounds.generate(STAGING))

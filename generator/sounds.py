@@ -126,6 +126,12 @@ def mix(*parts):
     return out
 
 
+def pickup_tone(freq, dur=0.30):
+    x = t(dur)
+    phase = 2 * np.pi * (freq * x + 0.17 * freq * x * x / dur)
+    return (np.sin(phase) + 0.25 * np.sin(phase * 2.01)) * np.exp(-12 * x) * env(len(x), 0.004, 0.08)
+
+
 def generate(staging):
     out = {
         'sound/weapons/saber/saberhum.wav': hum(2.0, 92, 1),
@@ -148,6 +154,9 @@ def generate(staging):
     out['sound/player/land1.wav'] = thump(80, 0.25, 55, 0.6)
     out['sound/player/roll1.wav'] = lowpass(rng(81).normal(0, 1, int(0.4 * RATE)), 0.05) * env(int(0.4 * RATE), 0.05, 0.2) * 2
     out['sound/player/fallsplat.wav'] = thump(82, 0.4, 45, 0.8)
+    # pickups: a short metallic tap under a rising tone, higher for shields
+    out['sound/player/pickuphealth.wav'] = mix(clash(83, 0.2, 0.8) * 0.3, pickup_tone(480) * 0.5)
+    out['sound/player/pickupshield.wav'] = mix(clash(84, 0.2, 1.1) * 0.3, pickup_tone(690) * 0.5)
     out['sound/player/talk.wav'] = np.sin(2 * np.pi * 880 * t(0.08)) * env(int(0.08 * RATE), 0.005, 0.04) * 0.3
     # the default model's voice: wordless grunts
     for name, f0, d in (('pain25', 210, 0.25), ('pain50', 200, 0.3), ('pain75', 190, 0.3), ('pain100', 180, 0.35),

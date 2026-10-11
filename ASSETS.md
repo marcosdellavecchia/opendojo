@@ -32,8 +32,9 @@ contains **no files from Jedi Knight II: Jedi Outcast**, from JK2MV's
 | `models/players/_humanoid/_humanoid.gla`, `animation.cfg` | Generated | `tools/skeleton.py`, `tools/model.py` | GPLv2 | Skeleton and 2,848 frames of procedural animation. Bone and animation *names* follow the GPL game code. |
 | `models/players/open/model.glm`, `model_{default,red,blue}.skin`, `body_*.jpg`, `icon_default.jpg` | Generated | `tools/model.py` | GPLv2 | A box-built humanoid, the default model (renamed from the code's original default by `patches/mvsdk.patch`). |
 | `models/weapons2/saber/saber_w.glm`, `saber_w.jpg` | Generated | `tools/model.py` | GPLv2 | The saber hilt and the tag its blade comes out of. |
+| `models/map_objects/mp/{medpac,psd_sm,psd}.md3`, `open_*.jpg`, `gfx/hud/i_icon_medkit.tga`, `gfx/mp/{small_shield,large_shield}.tga` | Generated | `generator/items.py` | GPLv2 | Original health and shield pickup shapes, textures and HUD icons. Legacy paths are required by the game code's item definitions. |
 | `botfiles/bots.txt`, `botfiles/open.jkb`, `botroutes/open_dojo.wnt` | Generated | `tools/bots.py` | GPLv2 | Bot names made up for the pack; waypoints computed from the map's layout. |
-| `sound/**/*.wav` | Generated | `tools/sounds.py` (synthesized with NumPy) | GPLv2 | Saber hum, swings, clashes, footsteps, wordless grunts. |
+| `sound/**/*.wav` | Generated | `tools/sounds.py` (synthesized with NumPy) | GPLv2 | Saber hum, swings, clashes, footsteps, wordless grunts, pickup tones. |
 
 Build-time tools, none of them in the pack: Python 3, NumPy (BSD), Pillow
 (MIT-CMU), q3map2 (GPLv2), Emscripten (MIT/UIUC), CMake. Test-only:
